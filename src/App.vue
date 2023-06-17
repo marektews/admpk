@@ -33,29 +33,37 @@ watch(search, (nv) => {
     if(timer.value != null)
         clearTimeout(timer.value)
     timer.value = setTimeout(() => {
-        if(search.value.length) {
-            nv = nv.toLowerCase()
-            pk_list_filtered.value = pk_list_orig.value.filter((item) => {
-                if(item.regnum1.toLowerCase().includes(nv)) return true
-                if(item.regnum2?.toLowerCase().includes(nv)) return true
-                if(item.regnum3?.toLowerCase().includes(nv)) return true
-                if(item.pass_nr == nv) return true
-                
-                let tmp = zbor_info(item.zbor_id)
-                if(tmp?.toLowerCase().includes(nv)) return true
-                return false
-            })
-        }
-        else
-            pk_list_filtered.value = undefined
+        filtering(nv)
         timer.value = null
     }, 500)
 })
 
+function filtering(pattern) {
+    if(pattern.length) {
+        pattern = pattern.toLowerCase()
+        pk_list_filtered.value = pk_list_orig.value.filter((item) => {
+            if(item.regnum1.toLowerCase().includes(pattern)) return true
+            if(item.regnum2?.toLowerCase().includes(pattern)) return true
+            if(item.regnum3?.toLowerCase().includes(pattern)) return true
+            if(item.pass_nr == pattern) return true
+            
+            let tmp = department_info(item.dep_id)
+            if(tmp?.toLowerCase().includes(pattern)) return true
+            return false
+        })
+    }
+    else
+        pk_list_filtered.value = undefined
+}
+
 function load_all_pk() {
     fetch('/api/pk/all')
     .then(response => response.json())
-    .then(d => pk_list_orig.value = d)
+    .then(d => {
+        pk_list_orig.value = d
+        if(search.value.length > 0)
+            filtering(search.value)
+    })
     .catch(err => console.error('Load all PK exception:', err))
 }
 
@@ -75,8 +83,8 @@ function onDelete(pk) {
     fetch(`/api/pk/delete/${deletingItem.value.id}`)
     .then(response => {
         if(response.status === 200) {
-            pk_list_filtered.value = []
-            pk_list_orig.value = []
+            pk_list_filtered.value = undefined
+            pk_list_orig.value = undefined
             load_all_pk()
         }
     })

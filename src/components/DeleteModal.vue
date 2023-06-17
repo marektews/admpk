@@ -44,7 +44,7 @@ const isOkEnabled = computed(() => {
                         class="btn btn-danger"
                         data-bs-dismiss="modal"
                         :disabled="!isOkEnabled"
-                        @click="$emit('ok', props.record)"
+                        @click="confirmationData = ''; $emit('ok', props.record)"
                     >
                         <i class="fa-solid fa-trash" />
                         Usuń
