@@ -2,7 +2,7 @@
 import { ref, watch, computed, onMounted, onUnmounted } from 'vue'
 import DeleteModal from './components/DeleteModal.vue'
 
-const pk_list_orig = ref([])
+const pk_list_orig = ref(undefined)
 const pk_list_filtered = ref(undefined)
 const departments_list = ref([])
 const deletingItem = ref(undefined)
@@ -10,7 +10,7 @@ const search = ref('')
 const timer = ref(null)
 
 const pk_list = computed(() => {
-    return pk_list_filtered.value != undefined ? pk_list_filtered.value : pk_list_orig.value
+    return pk_list_filtered.value != undefined ? pk_list_filtered.value : (pk_list_orig.value || [])
 })
 
 onMounted(() => {
@@ -124,7 +124,7 @@ function onDelete(pk) {
                     <th>Niedziela</th>
                 </tr>
             </thead>
-            <tbody v-if="pk_list_orig.length === 0">
+            <tbody v-if="pk_list_orig === undefined">
                 <tr>
                     <td colspan="7">
                         <div class="d-inline-flex flex-row align-items-center">
