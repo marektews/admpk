@@ -1,7 +1,9 @@
 <script setup>
 import { ref, computed } from 'vue'
+import { FontAwesomeIcon } from '@fortawesome/vue-fontawesome';
+import { faTrash } from '@fortawesome/free-solid-svg-icons';
 
-defineEmits(['ok'])
+const emit = defineEmits(['ok'])
 const props = defineProps(['record'])
 const confirmationData = ref('')
 
@@ -22,14 +24,17 @@ const isOkEnabled = computed(() => {
                     <p>
                         <b>Czy na pewno skasować ten wpis?</b>
                     </p>
-                    <p>
+                    <div>
                         <div>Potwierdź wpisując numer rejestracyjny pojazdu: <b>{{ props.record?.regnum1 }}</b></div>
-                        <div>
-                            <input class="form-control" v-model="confirmationData" type="text" />
+                        <div class="mt-2">
+                            <input 
+                                class="form-control" 
+                                v-model="confirmationData" 
+                                type="text"
+                            >
                         </div>
-                    </p>
+                    </div>
                 </div>
-
                 <div class="modal-footer">
                     <button 
                         type="button"
@@ -44,25 +49,12 @@ const isOkEnabled = computed(() => {
                         class="btn btn-danger"
                         data-bs-dismiss="modal"
                         :disabled="!isOkEnabled"
-                        @click="confirmationData = ''; $emit('ok', props.record)"
+                        @click="confirmationData = ''; emit('ok', props.record);"
                     >
-                        <i class="fa-solid fa-trash" />
-                        Usuń
+                        <FontAwesomeIcon :icon="faTrash" /> Usuń
                     </button>
                 </div>
             </div>
         </div>
     </div>
 </template>
-
-<style>
-@media (prefers-color-scheme: dark) {
-    div.modal-content {
-        background-color: var(--color-background) !important;
-    }
-
-    .btn-close {
-        color: var(--color-text) !important;
-    }
-}
-</style>

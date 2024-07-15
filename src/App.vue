@@ -1,5 +1,7 @@
 <script setup>
 import { ref, watch, computed, onMounted, onUnmounted } from 'vue'
+import { FontAwesomeIcon } from '@fortawesome/vue-fontawesome';
+import { faMagnifyingGlass, faXmark, faTrash } from '@fortawesome/free-solid-svg-icons';
 import DeleteModal from './components/DeleteModal.vue'
 
 const pk_list_orig = ref(undefined)
@@ -96,12 +98,12 @@ function onDelete(pk) {
     <header>
         <div class="d-flex flex-row align-items-center">
             <img src="@/assets/Parking_icon.svg" width="40" height="40" />
-            <span class="ms-2 title">Parking księżycowy - tryb moderatora</span>
+            <span class="ms-2 title">Parking Torwar - tryb moderatora</span>
         </div>
         <div>
             <div class="input-group ">
                 <span class="input-group-text">
-                    <i class="fa-solid fa-magnifying-glass" />
+                    <FontAwesomeIcon :icon="faMagnifyingGlass" />
                 </span>
                 <input
                     v-model="search"
@@ -110,7 +112,7 @@ function onDelete(pk) {
                     placeholder="Wpisz ciąg filtrowania" 
                 />
                 <button class="btn btn-secondary" @click="search = ''">
-                    <i class="fa-solid fa-xmark" />
+                    <FontAwesomeIcon :icon="faXmark" />
                 </button>
             </div>
         </div>
@@ -163,7 +165,7 @@ function onDelete(pk) {
                             data-bs-toggle="modal"
                             data-bs-target="#deleteModal"
                         >
-                            <i class="fa-solid fa-trash" />
+                            <FontAwesomeIcon :icon="faTrash" />
                         </button>
                     </td>
                 </tr>
