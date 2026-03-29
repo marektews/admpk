@@ -8,6 +8,7 @@ const pk_list_orig = ref(undefined)
 const pk_list_filtered = ref(undefined)
 const departments_list = ref([])
 const deletingItem = ref(undefined)
+const tury = ref([])
 const search = ref('')
 const timer = ref(null)
 const filter_tura = ref('ALL')
@@ -17,6 +18,11 @@ const pk_list = computed(() => {
 })
 
 onMounted(() => {
+    fetch('/api/config/tury')
+    .then(response => response.json())
+    .then(d => tury.value = d)
+    .catch(err => console.error('Load tury list exception:', err))
+
     fetch('/api/pk/hints')
     .then(response => response.json())
     .then(d => departments_list.value = d)
@@ -156,13 +162,9 @@ function onDelete(pk) {
                 <input v-model="filter_tura" value="ALL" class="form-check-input" type="radio" name="tura" id="tura_all">
                 <label class="form-check-label" for="tura_all">Wszystko</label>
             </div>
-            <div class="form-check">
-                <input v-model="filter_tura" value="W2" class="form-check-input" type="radio" name="tura" id="tura_w2">
-                <label class="form-check-label" for="tura_w2">W2</label>
-            </div>
-            <div class="form-check">
-                <input v-model="filter_tura" value="W3" class="form-check-input" type="radio" name="tura" id="tura_w3">
-                <label class="form-check-label" for="tura_w3">W3</label>
+            <div v-for="(t, index) in tury" :key="index" class="form-check" :title="t.name">
+                <input v-model="filter_tura" :value="t.shortcut" class="form-check-input" type="radio" name="tura" :id="`tura_${t.shortcut}`">
+                <label class="form-check-label" :for="`tura_${t.shortcut}`">{{ t.shortcut }}</label>
             </div>
         </div>
         <div>
@@ -202,7 +204,7 @@ function onDelete(pk) {
             </thead>
             <tbody v-if="pk_list_orig === undefined">
                 <tr>
-                    <td colspan="7">
+                    <td colspan="8">
                         <div class="d-inline-flex flex-row align-items-center">
                             <div class="spinner-border" role="status" />
                             <div class="ms-3">Proszę czekać. Trwa ładowanie danych ...</div>
