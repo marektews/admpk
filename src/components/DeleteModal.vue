@@ -4,7 +4,7 @@ import { FontAwesomeIcon } from '@fortawesome/vue-fontawesome';
 import { faTrash } from '@fortawesome/free-solid-svg-icons';
 
 const emit = defineEmits(['ok'])
-const props = defineProps(['record'])
+const props = defineProps(['record', 'id'])
 const confirmationData = ref('')
 
 const isOkEnabled = computed(() => {
@@ -13,7 +13,7 @@ const isOkEnabled = computed(() => {
 </script>
 
 <template>
-    <div class="modal fade" tabindex="-1">
+    <div class="modal fade" :id="props.id" tabindex="-1">
         <div class="modal-dialog">
             <div class="modal-content">
                 <div class="modal-header">

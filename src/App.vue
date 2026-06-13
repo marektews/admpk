@@ -18,9 +18,9 @@ const pk_list = computed(() => {
 })
 
 onMounted(() => {
-    fetch('/api/config/tury')
+    fetch('/api/config/all')
     .then(response => response.json())
-    .then(d => tury.value = d)
+    .then(d => tury.value = d?.tury ?? [])
     .catch(err => console.error('Load tury list exception:', err))
 
     fetch('/api/pk/hints')
@@ -62,17 +62,14 @@ function filtering(pattern, tura) {
     if(pattern.length) {
         pattern = pattern.toLowerCase()
         list = pk_list_orig.value.filter((item) => {
-            if(tura !== "ALL") {
-                let dep_tura = department_tura(item.dep_id)
-                if(dep_tura !== tura)
-                    return false
-            }
+            if(tura !== "ALL" && department_tura_id(item.dep_id) !== tura)
+                return false
 
             if(item.regnum1.toLowerCase().includes(pattern)) return true
             if(item.regnum2?.toLowerCase().includes(pattern)) return true
             if(item.regnum3?.toLowerCase().includes(pattern)) return true
             if(item.pass_nr == pattern) return true
-            
+
             let tmp = department_info(item.dep_id)
             if(tmp?.toLowerCase().includes(pattern)) return true
             return false
@@ -80,20 +77,16 @@ function filtering(pattern, tura) {
     }
     else {
         list = pk_list_orig.value.filter((item) => {
-            if(tura !== "ALL") {
-                let dep_tura = department_tura(item.dep_id)
-                if(dep_tura !== tura)
-                    return false
-            }
+            if(tura !== "ALL" && department_tura_id(item.dep_id) !== tura)
+                return false
             return true
         })
-    } 
-    
+    }
+
     list.sort((a,b) => {
-        let dep_tura_a = department_tura(a.dep_id)
-        let dep_tura_b = department_tura(b.dep_id)
-        let tmp = dep_tura_a.localeCompare(dep_tura_b)
-        if(tmp !== 0) return tmp
+        let ta = department_tura_id(a.dep_id) ?? 0
+        let tb = department_tura_id(b.dep_id) ?? 0
+        if(ta !== tb) return ta - tb
 
         let zb_name_a = department_name(a.dep_id)
         let zb_name_b = department_name(b.dep_id)
@@ -120,10 +113,13 @@ function department_info(dep_id) {
     return `${d.lang} - ${d.name}`
 }
 
-function department_tura(dep_id) {
-    let d = departments_list.value.find((item) => item.id === dep_id)
-    if(d == undefined) return ""
-    return `W${d.tura}`
+function department_tura_id(dep_id) {
+    return departments_list.value.find((item) => item.id === dep_id)?.tura
+}
+
+function tura_label(dep_id) {
+    let t = tury.value.find((item) => item.tid === department_tura_id(dep_id))
+    return t ? t.shortcut : ""
 }
 
 function department_name(dep_id) {
@@ -155,7 +151,7 @@ function onDelete(pk) {
     <header>
         <div class="d-flex flex-row align-items-center">
             <img src="@/assets/Parking_icon.svg" width="40" height="40" />
-            <span class="ms-2 title">Parking Torwar - tryb moderatora</span>
+            <span class="ms-2 title">Parking księżycowy - tryb moderatora</span>
         </div>
         <div class="tura-radio-group">
             <div class="form-check">
@@ -163,8 +159,8 @@ function onDelete(pk) {
                 <label class="form-check-label" for="tura_all">Wszystko</label>
             </div>
             <div v-for="(t, index) in tury" :key="index" class="form-check" :title="t.name">
-                <input v-model="filter_tura" :value="t.shortcut" class="form-check-input" type="radio" name="tura" :id="`tura_${t.shortcut}`">
-                <label class="form-check-label" :for="`tura_${t.shortcut}`">{{ t.shortcut }}</label>
+                <input v-model="filter_tura" :value="t.tid" class="form-check-input" type="radio" name="tura" :id="`tura_${t.tid}`">
+                <label class="form-check-label" :for="`tura_${t.tid}`">{{ t.shortcut }}</label>
             </div>
         </div>
         <div>
@@ -216,7 +212,7 @@ function onDelete(pk) {
                 <tr v-for="(pk, index) in pk_list" :key="index">
                     <th>{{ index+1 }}</th>
                     <td>{{ department_info(pk.dep_id) }}</td>
-                    <td>{{ department_tura(pk.dep_id) }}</td>
+                    <td>{{ tura_label(pk.dep_id) }}</td>
                     <td>{{ pk.pass_nr }}</td>
                     <template v-if="pk.regnum2?.length">
                         <td>{{ pk.regnum1 }}</td>
