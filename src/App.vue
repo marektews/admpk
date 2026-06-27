@@ -14,7 +14,17 @@ const timer = ref(null)
 const filter_tura = ref('ALL')
 
 const pk_list = computed(() => {
-    return pk_list_filtered.value != undefined ? pk_list_filtered.value : (pk_list_orig.value || [])
+    let list = pk_list_filtered.value != undefined ? pk_list_filtered.value : (pk_list_orig.value || [])
+    return [...list].sort((a,b) => {
+        let da = department_info(a.dep_id)
+        let db = department_info(b.dep_id)
+        let cmp = da.localeCompare(db)
+        if(cmp !== 0) return cmp
+
+        let na = Number(a.pass_nr), nb = Number(b.pass_nr)
+        if(!isNaN(na) && !isNaN(nb)) return na - nb
+        return String(a.pass_nr).localeCompare(String(b.pass_nr))
+    })
 })
 
 onMounted(() => {
@@ -83,16 +93,6 @@ function filtering(pattern, tura) {
         })
     }
 
-    list.sort((a,b) => {
-        let ta = department_tura_id(a.dep_id) ?? 0
-        let tb = department_tura_id(b.dep_id) ?? 0
-        if(ta !== tb) return ta - tb
-
-        let zb_name_a = department_name(a.dep_id)
-        let zb_name_b = department_name(b.dep_id)
-        return zb_name_a.localeCompare(zb_name_b)
-    })
-
     pk_list_filtered.value = list
 }
 
@@ -120,12 +120,6 @@ function department_tura_id(dep_id) {
 function tura_label(dep_id) {
     let t = tury.value.find((item) => item.tid === department_tura_id(dep_id))
     return t ? t.shortcut : ""
-}
-
-function department_name(dep_id) {
-    let d = departments_list.value.find((item) => item.id === dep_id)
-    if(d == undefined) return ""
-    return d.name
 }
 
 function onStartDelete(pk) {
@@ -220,7 +214,7 @@ function onDelete(pk) {
                         <td>{{ pk.regnum3 }}</td>
                     </template>
                     <template v-else>
-                        <td colspan="3">{{ pk.regnum1 }}</td>
+                        <td colspan="3" class="text-center">{{ pk.regnum1 }}</td>
                     </template>
                     <td>
                         <button type="button"
